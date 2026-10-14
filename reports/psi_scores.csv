@@ -1,0 +1,7 @@
+model,comparison,psi
+scorecard,train_vs_test,0.00037687086857885756
+scorecard,train_vs_oot,0.07925830455078309
+xgboost,train_vs_test,0.0005574170698610122
+xgboost,train_vs_oot,0.05364662098861253
+spark_lr,train_vs_test,0.00026449165624863063
+spark_lr,train_vs_oot,0.07983523940992272

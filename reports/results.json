@@ -1,0 +1,292 @@
+{
+  "counts": {
+    "population": 320248,
+    "censored_excluded": 0
+  },
+  "splits": {
+    "train": {
+      "n": 136745,
+      "n_default": 1119,
+      "default_rate": 0.008183114556290906
+    },
+    "validation": {
+      "n": 45582,
+      "n_default": 373,
+      "default_rate": 0.008183054714580317
+    },
+    "test": {
+      "n": 45582,
+      "n_default": 374,
+      "default_rate": 0.008204993199069808
+    },
+    "oot": {
+      "n": 92339,
+      "n_default": 818,
+      "default_rate": 0.008858662103769805
+    }
+  },
+  "metrics": {
+    "validation": {
+      "scorecard": {
+        "n": 45582,
+        "n_default": 373,
+        "default_rate": 0.008183054714580317,
+        "mean_pd": 0.00839948365841234,
+        "auc": 0.8723405687389227,
+        "gini": 0.7446811374778455,
+        "ks": 0.585004694016595,
+        "average_precision": 0.16325404131865878,
+        "brier": 0.007434621149370631
+      },
+      "xgboost": {
+        "n": 45582,
+        "n_default": 373,
+        "default_rate": 0.008183054714580317,
+        "mean_pd": 0.008261160925030708,
+        "auc": 0.8838865271375596,
+        "gini": 0.7677730542751191,
+        "ks": 0.5898001163141198,
+        "average_precision": 0.16759460113625188,
+        "brier": 0.0073506102744649695
+      },
+      "spark_lr": {
+        "n": 45582,
+        "n_default": 373,
+        "default_rate": 0.008183054714580317,
+        "mean_pd": 0.008266486222557252,
+        "auc": 0.8743957539594035,
+        "gini": 0.748791507918807,
+        "ks": 0.5962254425484214,
+        "average_precision": 0.18235215383891826,
+        "brier": 0.007298765351227773
+      }
+    },
+    "test": {
+      "scorecard": {
+        "n": 45582,
+        "n_default": 374,
+        "default_rate": 0.008204993199069808,
+        "mean_pd": 0.008376489533407026,
+        "auc": 0.8850560144103974,
+        "gini": 0.7701120288207948,
+        "ks": 0.6247518303986707,
+        "average_precision": 0.1497866130529306,
+        "brier": 0.007492158543254595
+      },
+      "xgboost": {
+        "n": 45582,
+        "n_default": 374,
+        "default_rate": 0.008204993199069808,
+        "mean_pd": 0.008335118182003498,
+        "auc": 0.8862202705119627,
+        "gini": 0.7724405410239255,
+        "ks": 0.6340864614374249,
+        "average_precision": 0.16489292085725307,
+        "brier": 0.007399818820006909
+      },
+      "spark_lr": {
+        "n": 45582,
+        "n_default": 374,
+        "default_rate": 0.008204993199069808,
+        "mean_pd": 0.008301624819628282,
+        "auc": 0.882020136041418,
+        "gini": 0.7640402720828361,
+        "ks": 0.6069768305642748,
+        "average_precision": 0.17884920129206228,
+        "brier": 0.007364645688625964
+      }
+    },
+    "oot": {
+      "scorecard": {
+        "n": 92339,
+        "n_default": 818,
+        "default_rate": 0.008858662103769805,
+        "mean_pd": 0.005471450608211155,
+        "auc": 0.8366485169983433,
+        "gini": 0.6732970339966866,
+        "ks": 0.511314222938506,
+        "average_precision": 0.15532465254552053,
+        "brier": 0.008070295394528845
+      },
+      "xgboost": {
+        "n": 92339,
+        "n_default": 818,
+        "default_rate": 0.008858662103769805,
+        "mean_pd": 0.005640634801238775,
+        "auc": 0.8529768803445622,
+        "gini": 0.7059537606891244,
+        "ks": 0.5438624331118683,
+        "average_precision": 0.17390794266127482,
+        "brier": 0.007934759568887702
+      },
+      "spark_lr": {
+        "n": 92339,
+        "n_default": 818,
+        "default_rate": 0.008858662103769805,
+        "mean_pd": 0.006530982850921642,
+        "auc": 0.8369174640506971,
+        "gini": 0.6738349281013942,
+        "ks": 0.5170445469928221,
+        "average_precision": 0.17163706270030057,
+        "brier": 0.007983602589783713
+      }
+    }
+  },
+  "interpretability_cost": {
+    "test": {
+      "gini_xgboost": 0.7724405410239255,
+      "gini_scorecard": 0.7701120288207948,
+      "gini_points_lost": 0.0023285122031306837
+    },
+    "oot": {
+      "gini_xgboost": 0.7059537606891244,
+      "gini_scorecard": 0.6732970339966866,
+      "gini_points_lost": 0.0326567266924378
+    }
+  },
+  "psi": [
+    {
+      "model": "scorecard",
+      "comparison": "train_vs_test",
+      "psi": 0.00037687086857885756
+    },
+    {
+      "model": "scorecard",
+      "comparison": "train_vs_oot",
+      "psi": 0.07925830455078309
+    },
+    {
+      "model": "xgboost",
+      "comparison": "train_vs_test",
+      "psi": 0.0005574170698610122
+    },
+    {
+      "model": "xgboost",
+      "comparison": "train_vs_oot",
+      "psi": 0.05364662098861253
+    },
+    {
+      "model": "spark_lr",
+      "comparison": "train_vs_test",
+      "psi": 0.00026449165624863063
+    },
+    {
+      "model": "spark_lr",
+      "comparison": "train_vs_oot",
+      "psi": 0.07983523940992272
+    }
+  ],
+  "vintage_profile": {
+    "2010": {
+      "mean_orig_rate": 4.71043,
+      "default_rate": 0.01068
+    },
+    "2011": {
+      "mean_orig_rate": 4.43215,
+      "default_rate": 0.00844
+    },
+    "2012": {
+      "mean_orig_rate": 3.75145,
+      "default_rate": 0.00703
+    },
+    "2013": {
+      "mean_orig_rate": 3.92145,
+      "default_rate": 0.00649
+    },
+    "2014": {
+      "mean_orig_rate": 4.29764,
+      "default_rate": 0.00834
+    },
+    "2015": {
+      "mean_orig_rate": 3.966,
+      "default_rate": 0.00877
+    },
+    "2016": {
+      "mean_orig_rate": 3.78155,
+      "default_rate": 0.00894
+    }
+  },
+  "cutoff": {
+    "target_approval_rate_on_validation": 0.9,
+    "scorecard": {
+      "cutoff_score": 607.0531139437351,
+      "test": {
+        "cutoff_score": 607.0531139437351,
+        "approval_rate": 0.9004650958711772,
+        "bad_rate_approved": 0.0034352539895236935,
+        "bad_rate_declined": 0.05135552126956138,
+        "share_of_bads_declined": 0.6229946524064172
+      },
+      "oot": {
+        "cutoff_score": 607.0531139437351,
+        "approval_rate": 0.9582300003248898,
+        "bad_rate_approved": 0.005357021767139079,
+        "bad_rate_declined": 0.08918848846253564,
+        "share_of_bads_declined": 0.42053789731051344
+      }
+    },
+    "xgboost": {
+      "cutoff_score": 605.2872068449939,
+      "test": {
+        "cutoff_score": 605.2872068449939,
+        "approval_rate": 0.9011232504058619,
+        "bad_rate_approved": 0.0036275106512477177,
+        "bad_rate_declined": 0.04992234302196583,
+        "share_of_bads_declined": 0.6016042780748663
+      },
+      "oot": {
+        "cutoff_score": 605.2872068449939,
+        "approval_rate": 0.9558799640455279,
+        "bad_rate_approved": 0.005302214920976604,
+        "bad_rate_declined": 0.0859106529209622,
+        "share_of_bads_declined": 0.4278728606356968
+      }
+    }
+  },
+  "top_reason_frequency_test_sample": {
+    "scorecard": {
+      "orig_interest_rate": 0.4048,
+      "upb_paydown_ratio": 0.1864,
+      "credit_score": 0.1778,
+      "orig_cltv": 0.1306,
+      "orig_dti": 0.0474,
+      "num_borrowers_group": 0.041,
+      "months_since_last_dlq": 0.0108,
+      "property_state": 0.0012
+    },
+    "xgboost": {
+      "num_borrowers_group": 0.2748,
+      "credit_score": 0.153,
+      "orig_dti": 0.0972,
+      "orig_cltv": 0.0856,
+      "loan_purpose": 0.0734,
+      "orig_interest_rate": 0.0628,
+      "orig_upb": 0.0544,
+      "upb_paydown_ratio": 0.0536,
+      "property_state": 0.0534,
+      "rate_spread_at_orig": 0.0266,
+      "excess_paydown_ratio": 0.0188,
+      "occupancy_status": 0.016,
+      "months_since_last_dlq": 0.0122,
+      "orig_ltv": 0.0048,
+      "channel": 0.0044,
+      "max_dlq_12m": 0.0042,
+      "mi_pct": 0.0034,
+      "property_type": 0.001,
+      "n_cures_12m": 0.0002,
+      "orig_loan_term": 0.0002
+    }
+  },
+  "lgd": {
+    "n_credit_events": 1541,
+    "loss_sign_convention": "positive = loss",
+    "lgd_mean": 0.35910684151552663,
+    "lgd_median": 0.3084939597334308,
+    "lgd_ead_weighted": 0.31983260358472904
+  },
+  "ecl_illustrative_oot": {
+    "total_ead": 20144470647.26,
+    "total_ecl": 33234672.434012864,
+    "ecl_to_ead": 0.0016498161215536017
+  }
+}

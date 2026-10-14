@@ -1,0 +1,186 @@
+{
+  "data_quality": {
+    "origination_by_vintage": [
+      {
+        "vintage": 2010,
+        "n_loans": 50000,
+        "credit_score_9999": 3,
+        "dti_999": 14662,
+        "ltv_999": 1,
+        "cltv_999": 1,
+        "mi_pct_999": 1,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 15,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 1,
+        "relief_refi": 14641,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2011,
+        "n_loans": 50000,
+        "credit_score_9999": 0,
+        "dti_999": 15498,
+        "ltv_999": 2,
+        "cltv_999": 2,
+        "mi_pct_999": 0,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 52,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 15493,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2012,
+        "n_loans": 50000,
+        "credit_score_9999": 0,
+        "dti_999": 17400,
+        "ltv_999": 3,
+        "cltv_999": 3,
+        "mi_pct_999": 2,
+        "units_99": 62,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 0,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 17399,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2013,
+        "n_loans": 50000,
+        "credit_score_9999": 1,
+        "dti_999": 14384,
+        "ltv_999": 0,
+        "cltv_999": 0,
+        "mi_pct_999": 0,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 1,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 14382,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2014,
+        "n_loans": 50000,
+        "credit_score_9999": 13,
+        "dti_999": 7309,
+        "ltv_999": 2,
+        "cltv_999": 2,
+        "mi_pct_999": 0,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 2,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 7307,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2015,
+        "n_loans": 50000,
+        "credit_score_9999": 0,
+        "dti_999": 4020,
+        "ltv_999": 1,
+        "cltv_999": 1,
+        "mi_pct_999": 0,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 8,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 4017,
+        "non_frm": 0
+      },
+      {
+        "vintage": 2016,
+        "n_loans": 50000,
+        "credit_score_9999": 0,
+        "dti_999": 2528,
+        "ltv_999": 0,
+        "cltv_999": 0,
+        "mi_pct_999": 0,
+        "units_99": 0,
+        "occupancy_9": 0,
+        "channel_9": 0,
+        "property_type_99": 0,
+        "first_time_buyer_9": 2,
+        "loan_purpose_9": 0,
+        "num_borrowers_99": 0,
+        "relief_refi": 2525,
+        "non_frm": 0
+      }
+    ],
+    "performance": {
+      "n_rows": 26027039,
+      "n_loans": 350000,
+      "dlq_ra": 6955,
+      "dlq_other_non_numeric": 0,
+      "duplicate_loan_months": 0,
+      "first_period": "201001",
+      "last_period": "202603"
+    }
+  },
+  "population_by_vintage": [
+    {
+      "vintage": 2010,
+      "n_population": 46143,
+      "n_outcome_complete": 46143,
+      "n_default": 493
+    },
+    {
+      "vintage": 2011,
+      "n_population": 43737,
+      "n_outcome_complete": 43737,
+      "n_default": 369
+    },
+    {
+      "vintage": 2012,
+      "n_population": 46256,
+      "n_outcome_complete": 46256,
+      "n_default": 325
+    },
+    {
+      "vintage": 2013,
+      "n_population": 46829,
+      "n_outcome_complete": 46829,
+      "n_default": 304
+    },
+    {
+      "vintage": 2014,
+      "n_population": 44944,
+      "n_outcome_complete": 44944,
+      "n_default": 375
+    },
+    {
+      "vintage": 2015,
+      "n_population": 45363,
+      "n_outcome_complete": 45363,
+      "n_default": 398
+    },
+    {
+      "vintage": 2016,
+      "n_population": 46976,
+      "n_outcome_complete": 46976,
+      "n_default": 420
+    }
+  ],
+  "n_features": 36
+}

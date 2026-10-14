@@ -1,0 +1,140 @@
+{
+  "counts": {
+    "population": 320248,
+    "censored_excluded": 0
+  },
+  "splits": {
+    "train": {
+      "n": 136745,
+      "n_default": 1119,
+      "default_rate": 0.008183114556290906
+    },
+    "validation": {
+      "n": 45582,
+      "n_default": 373,
+      "default_rate": 0.008183054714580317
+    },
+    "test": {
+      "n": 45582,
+      "n_default": 374,
+      "default_rate": 0.008204993199069808
+    },
+    "oot": {
+      "n": 92339,
+      "n_default": 818,
+      "default_rate": 0.008858662103769805
+    }
+  },
+  "scorecard_selected": [
+    "months_since_last_dlq",
+    "credit_score",
+    "dlq_at_obs",
+    "upb_paydown_ratio",
+    "orig_interest_rate",
+    "orig_cltv",
+    "orig_dti",
+    "rate_spread_at_orig",
+    "excess_paydown_ratio",
+    "num_borrowers_group",
+    "mi_pct",
+    "property_state"
+  ],
+  "scorecard_C": 10.0,
+  "scorecard_selection_log": [
+    "months_since_last_dlq: IV 1.015 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "n_months_dlq30_6m: IV 0.918 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "max_dlq_12m: IV 0.890 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "n_months_dlq30_12m: IV 0.890 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "credit_score: IV 0.831 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "dlq_at_obs: IV 0.764 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "upb_paydown_ratio: IV 0.745 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "orig_interest_rate: IV 0.671 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "orig_cltv: IV 0.668 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "orig_dti: IV 0.568 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "rate_spread_at_orig: IV 0.544 > 0.5 - flagged for leakage review (uses data up to month 12 only, enforced by test_leakage)",
+    "n_months_dlq30_6m: dropped, |corr| 0.87 with months_since_last_dlq",
+    "max_dlq_12m: dropped, |corr| 0.94 with months_since_last_dlq",
+    "n_months_dlq30_12m: dropped, |corr| 0.94 with months_since_last_dlq",
+    "orig_ltv: dropped, |corr| 0.85 with orig_cltv",
+    "n_cures_12m: dropped, |corr| 0.81 with months_since_last_dlq",
+    "relief_refi_indicator: dropped, |corr| 0.84 with orig_dti",
+    "orig_loan_term: dropped, |corr| 0.76 with upb_paydown_ratio",
+    "loan_purpose: dropped, coefficient sign +0.054",
+    "channel: dropped, coefficient sign +0.048",
+    "ever_assistance: dropped, coefficient sign +0.011"
+  ],
+  "xgb_params": {
+    "objective": "binary:logistic",
+    "eval_metric": "auc",
+    "tree_method": "hist",
+    "max_cat_to_onehot": 1,
+    "seed": 42,
+    "nthread": -1,
+    "max_depth": 6,
+    "eta": 0.03,
+    "min_child_weight": 50.0,
+    "subsample": 0.9335150491221286,
+    "colsample_bytree": 0.677855483140787,
+    "lambda": 3.0,
+    "alpha": 0.5
+  },
+  "xgb_best_iteration": 492,
+  "baseline_grid": [
+    {
+      "reg_param": 0.0,
+      "val_auc": 0.8722979012518376
+    },
+    {
+      "reg_param": 0.001,
+      "val_auc": 0.8738732773854542
+    },
+    {
+      "reg_param": 0.01,
+      "val_auc": 0.8744022178316644
+    },
+    {
+      "reg_param": 0.1,
+      "val_auc": 0.8600987359453026
+    }
+  ],
+  "validation_metrics": {
+    "scorecard": {
+      "n": 45582,
+      "n_default": 373,
+      "default_rate": 0.008183054714580317,
+      "mean_pd": 0.00839948365841234,
+      "auc": 0.8723404501357621,
+      "gini": 0.7446809002715242,
+      "ks": 0.585004694016595,
+      "average_precision": 0.16325404131865878,
+      "brier": 0.007434621149370631
+    },
+    "xgboost": {
+      "n": 45582,
+      "n_default": 373,
+      "default_rate": 0.008183054714580317,
+      "mean_pd": 0.008261160925030708,
+      "auc": 0.8838865271375596,
+      "gini": 0.7677730542751191,
+      "ks": 0.5898001163141198,
+      "average_precision": 0.16759460113625188,
+      "brier": 0.0073506102744649695
+    },
+    "spark_lr": {
+      "n": 45582,
+      "n_default": 373,
+      "default_rate": 0.008183054714580317,
+      "mean_pd": 0.008266486222557252,
+      "auc": 0.8743957539594035,
+      "gini": 0.748791507918807,
+      "ks": 0.5962254425484214,
+      "average_precision": 0.18235215383891826,
+      "brier": 0.007298765351227773
+    }
+  },
+  "mlflow_run_id": "bb932bf7116d4d1987c246cbdff72850",
+  "registered_versions": {
+    "scorecard": 3,
+    "xgboost": 3
+  }
+}
