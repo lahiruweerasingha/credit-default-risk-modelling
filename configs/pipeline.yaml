@@ -1,0 +1,65 @@
+# Single source of truth for pipeline parameters. Paths are relative to the repo root.
+data:
+  downloads_dir: data/downloads      # where the manually downloaded sample_YYYY.zip files live
+  raw_dir: data/raw                  # unzipped pipe-delimited files
+  interim_dir: data/interim          # typed parquet
+  processed_dir: data/processed      # one row per loan at the observation point
+  # Development vintages are split stratified into train / validation / test.
+  # Out-of-time (OOT) vintages are never seen during development.
+  vintages_dev: [2010, 2011, 2012, 2013, 2014]
+  vintages_oot: [2015, 2016]
+
+behavioural:
+  observation_age_months: 12   # observation point = 12th scheduled payment
+  outcome_window_months: 24    # default looked for in months 13..36
+  default_dpd_status: 3        # Freddie Mac status 3 = 90-119 days delinquent
+  default_zero_balance_codes: ["02", "03", "09"]   # third-party sale, short sale / charge-off, REO
+
+split:
+  seed: 42
+  train: 0.6
+  validation: 0.2
+  test: 0.2
+
+scorecard:
+  base_score: 600       # score at the base odds
+  base_odds: 50         # good:bad odds at the base score
+  pdo: 20               # points to double the odds
+  max_prebins: 20
+  min_bin_share: 0.05
+  min_missing_count: 50
+  iv_min: 0.02
+  iv_suspicious: 0.5
+  corr_max: 0.7
+  max_features: 15
+  c_grid: [0.001, 0.01, 0.1, 1.0, 10.0]
+  n_reason_codes: 4
+
+xgboost:
+  n_trials: 12
+  seed: 42
+  max_rounds: 2000
+  early_stopping_rounds: 100
+
+baseline:
+  reg_grid: [0.0, 0.001, 0.01, 0.1]
+
+bands:
+  # PD upper edges for risk bands A..G (G is open-ended)
+  pd_edges: [0.0025, 0.005, 0.01, 0.02, 0.04, 0.08]
+  labels: [A, B, C, D, E, F, G]
+
+cutoff:
+  # Cut-off chosen on validation: approve the best-scoring share of loans.
+  target_approval_rate: 0.90
+
+segments: [first_time_homebuyer_flag, num_borrowers_group, occupancy_status]
+
+mlflow:
+  experiment: creditrisk-behavioural-pd
+  scorecard_model_name: creditrisk-scorecard
+  xgboost_model_name: creditrisk-xgboost
+
+outputs:
+  models_dir: data/models     # pickled models, split assignment, baseline predictions (gitignored)
+  reports_dir: reports        # aggregate tables and figures only - safe to publish

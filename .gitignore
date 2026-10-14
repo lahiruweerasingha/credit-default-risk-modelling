@@ -1,0 +1,30 @@
+# Data: never commit raw or derived loan-level data (Freddie Mac terms forbid redistribution)
+/data/
+mlruns/
+mlartifacts/
+*.parquet
+*.zip
+
+# Python / tooling
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

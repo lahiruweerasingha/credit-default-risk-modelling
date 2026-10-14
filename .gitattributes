@@ -1,0 +1,4 @@
+# Normalise line endings: scripts, SQL, Makefile and configs must stay LF to run in Linux
+# containers and bash, regardless of the contributor's OS.
+* text=auto eol=lf
+*.png binary
