@@ -1,0 +1,82 @@
+name: creditrisk
+
+x-pipeline-image: &pipeline-image
+  image: creditrisk-pipeline:latest
+  build:
+    context: .
+    dockerfile: docker/Dockerfile.pipeline
+
+services:
+  spark-master:
+    <<: *pipeline-image
+    command: ["spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master"]
+    ports:
+      - "8080:8080"   # Spark master UI
+    volumes:
+      - ./data:/app/data
+
+  spark-worker:
+    <<: *pipeline-image
+    command: ["spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    environment:
+      SPARK_WORKER_CORES: ${SPARK_WORKER_CORES:-6}
+      SPARK_WORKER_MEMORY: ${SPARK_WORKER_MEMORY:-4g}
+    ports:
+      - "8081:8081"   # Spark worker UI
+    volumes:
+      - ./data:/app/data   # executors read and write the same paths as the driver
+    depends_on:
+      - spark-master
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.17.2
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts --serve-artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+
+  # One-off jobs: `docker compose run --rm pipeline python -m creditrisk.cli features`
+  pipeline:
+    <<: *pipeline-image
+    profiles: ["jobs"]
+    environment:
+      SPARK_MASTER: ${SPARK_MASTER:-spark://spark-master:7077}
+      SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY:-2g}
+      SPARK_EXECUTOR_MEMORY: ${SPARK_EXECUTOR_MEMORY:-3g}
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      CREDITRISK_CONFIG: ${CREDITRISK_CONFIG:-configs/pipeline.yaml}
+      GIT_PYTHON_REFRESH: quiet
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./configs:/app/configs
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./scripts:/app/scripts
+    depends_on:
+      - spark-master
+      - spark-worker
+      - mlflow
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    image: creditrisk-api:latest
+    profiles: ["serve"]
+    restart: on-failure   # waits for models to be registered in MLflow
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      CREDITRISK_CONFIG: ${CREDITRISK_CONFIG:-configs/pipeline.yaml}
+      GIT_PYTHON_REFRESH: quiet
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mlflow
+
+volumes:
+  mlflow-data:
