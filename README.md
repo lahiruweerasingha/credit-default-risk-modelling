@@ -1,5 +1,7 @@
 # Behavioural mortgage PD: WoE scorecard vs XGBoost, with explainability
 
+[![CI](https://github.com/lahiruweerasingha/credit-default-risk-modelling/actions/workflows/ci.yml/badge.svg)](https://github.com/lahiruweerasingha/credit-default-risk-modelling/actions/workflows/ci.yml)
+
 A bank-style credit-risk model built end to end on the **Freddie Mac Single-Family Loan-Level Dataset**:
 Spark SQL feature engineering, a points-based WoE scorecard as the champion, an XGBoost challenger with
 SHAP reason codes, a Spark MLlib baseline, out-of-time validation, MLflow model registry and a
