@@ -24,6 +24,7 @@ from creditrisk.evaluation.metrics import (
     band_table,
     cutoff_table,
     discrimination,
+    paired_bootstrap,
     psi,
     reliability_table,
 )
@@ -187,6 +188,23 @@ def run(cfg: dict[str, Any]) -> dict[str, Any]:
         }
         for s in ["test", "oot"]
     }
+
+    # Paired, stratified bootstrap: 95% intervals for AUC / Gini / KS and for the Gini gap.
+    bs = cfg.get("bootstrap", {})
+    results["bootstrap"] = {}
+    for s in ["test", "oot"]:
+        d = preds[preds["split"] == s]
+        results["bootstrap"][s] = paired_bootstrap(
+            d[TARGET].to_numpy(),
+            {n: d[f"pd_{n}"].to_numpy() for n in names},
+            gaps=[("xgboost", "scorecard")],
+            n_resamples=int(bs.get("n_resamples", 1000)),
+            seed=int(bs.get("seed", 42)),
+            level=float(bs.get("level", 0.95)),
+        )
+        gap = results["bootstrap"][s]["gaps"]["gini_xgboost_minus_scorecard"]
+        results["interpretability_cost"][s]["gini_points_lost_interval"] = gap["interval"]
+        results["interpretability_cost"][s]["significant"] = gap["excludes_zero"]
 
     # Score bands, reliability and stability.
     tables: dict[str, pd.DataFrame] = {}

@@ -4,7 +4,73 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score, roc_curve
+from sklearn.metrics import (
+    auc as area_under_curve,
+)
+from sklearn.metrics import (
+    average_precision_score,
+    brier_score_loss,
+    roc_auc_score,
+    roc_curve,
+)
+
+
+def stratified_resample(y: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+    """Indices of a bootstrap resample drawn separately within defaults and non-defaults,
+    so every resample has exactly the original number of defaults."""
+    y = np.asarray(y)
+    pos, neg = np.flatnonzero(y == 1), np.flatnonzero(y == 0)
+    return np.concatenate(
+        [rng.choice(pos, size=len(pos), replace=True), rng.choice(neg, size=len(neg), replace=True)]
+    )
+
+
+def paired_bootstrap(
+    y: np.ndarray,
+    preds: dict[str, np.ndarray],
+    gaps: list[tuple[str, str]],
+    n_resamples: int = 1000,
+    seed: int = 42,
+    level: float = 0.95,
+) -> dict:
+    """Percentile intervals for AUC, Gini and KS of every model, and for Gini differences.
+
+    Paired: in each resample every model is scored on the SAME loans, so the interval for a
+    difference reflects only the models' disagreement, not sampling of different loans.
+    Stratified by the default flag (see `stratified_resample`).
+    `gaps` lists (a, b) pairs; the reported statistic is Gini(a) - Gini(b).
+    """
+    y = np.asarray(y)
+    rng = np.random.default_rng(seed)
+    draws = {m: {"auc": [], "ks": []} for m in preds}
+    for _ in range(n_resamples):
+        idx = stratified_resample(y, rng)
+        for m, p in preds.items():
+            fpr, tpr, _ = roc_curve(y[idx], np.asarray(p)[idx])
+            draws[m]["auc"].append(area_under_curve(fpr, tpr))
+            draws[m]["ks"].append(float(np.max(tpr - fpr)))
+    alpha = (1 - level) / 2
+
+    def _interval(values) -> list[float]:
+        lo, hi = np.quantile(np.asarray(values), [alpha, 1 - alpha])
+        return [float(lo), float(hi)]
+
+    out: dict = {"n_resamples": n_resamples, "seed": seed, "level": level, "models": {}, "gaps": {}}
+    for m, d in draws.items():
+        auc_arr = np.asarray(d["auc"])
+        out["models"][m] = {
+            "auc": _interval(auc_arr),
+            "gini": _interval(2 * auc_arr - 1),
+            "ks": _interval(d["ks"]),
+        }
+    for a, b in gaps:
+        diff = 2 * (np.asarray(draws[a]["auc"]) - np.asarray(draws[b]["auc"]))
+        lo, hi = _interval(diff)
+        out["gaps"][f"gini_{a}_minus_{b}"] = {
+            "interval": [lo, hi],
+            "excludes_zero": bool(lo > 0 or hi < 0),
+        }
+    return out
 
 
 def ks_statistic(y: np.ndarray, p: np.ndarray) -> float:

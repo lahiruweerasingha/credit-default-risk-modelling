@@ -55,6 +55,12 @@ cutoff:
 
 segments: [first_time_homebuyer_flag, num_borrowers_group, occupancy_status]
 
+bootstrap:
+  # Paired, stratified bootstrap for metric intervals and model-gap significance.
+  n_resamples: 1000
+  seed: 42
+  level: 0.95
+
 mlflow:
   experiment: creditrisk-behavioural-pd
   scorecard_model_name: creditrisk-scorecard
