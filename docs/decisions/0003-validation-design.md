@@ -10,6 +10,11 @@
 - `creditrisk.cli evaluate` scores the **in-time test** and the **out-of-time** vintages once.
 - Metrics: ROC-AUC, Gini, KS, average precision, Brier score, decile reliability, default rate by
   PD band, PSI of scores (train vs test, train vs OOT) and of each numeric feature (train vs OOT).
+- Uncertainty: 95% intervals for AUC, Gini and KS from a **paired, stratified bootstrap**
+  (1,000 resamples; defaults and non-defaults resampled separately so every resample has the same
+  default count). Paired means every model is scored on the same resampled loans, so the interval
+  for the scorecard-vs-XGBoost Gini gap is valid. A model is only called better when that gap
+  interval excludes zero; the README wording is generated from this test.
 - The cut-off is fixed on validation (approve the best-scoring 90%) and applied unchanged to test and
   OOT.
 

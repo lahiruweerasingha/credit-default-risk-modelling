@@ -27,6 +27,13 @@ def _f(x, d=3):
     return "n/a" if x is None or pd.isna(x) else f"{x:.{d}f}"
 
 
+def _ci(value, interval, d=3):
+    """Point estimate with its bootstrap interval, e.g. '0.885 [0.868, 0.900]'."""
+    if not interval:
+        return _f(value, d)
+    return f"{_f(value, d)} [{_f(interval[0], d)}, {_f(interval[1], d)}]"
+
+
 def _table(df: pd.DataFrame) -> str:
     cols = list(df.columns)
     lines = ["| " + " | ".join(cols) + " |", "|" + "|".join("---" for _ in cols) + "|"]
@@ -67,13 +74,14 @@ def results_markdown(rep: Path) -> str:
     for split, name in [("test", "In-time test"), ("oot", "Out-of-time")]:
         for m in LABELS:
             r = res["metrics"][split][m]
+            b = res.get("bootstrap", {}).get(split, {}).get("models", {}).get(m, {})
             rows.append(
                 [
                     name,
                     LABELS[m],
-                    _f(r["auc"]),
-                    _f(r["gini"]),
-                    _f(r["ks"]),
+                    _ci(r["auc"], b.get("auc")),
+                    _ci(r["gini"], b.get("gini")),
+                    _ci(r["ks"], b.get("ks")),
                     _f(r["average_precision"]),
                     _f(r["brier"], 5),
                     _pct(r["default_rate"]),
@@ -103,10 +111,24 @@ def results_markdown(rep: Path) -> str:
     )
 
     ic = res["interpretability_cost"]
+    bs = res.get("bootstrap", {}).get("test", {})
+    if bs:
+        out.append(
+            f"\nBrackets: {int(100 * bs['level'])}% intervals from a paired, stratified bootstrap "
+            f"({bs['n_resamples']:,} resamples; defaults and non-defaults resampled separately, "
+            "every model scored on the same resampled loans)."
+        )
+
+    def _gap(s: str) -> str:
+        g = ic[s]
+        txt = _ci(g["gini_points_lost"], g.get("gini_points_lost_interval"))
+        if "significant" in g:
+            txt += " - significant" if g["significant"] else " - not significant (includes zero)"
+        return txt
+
     out.append(
         "\n**Cost of interpretability** (XGBoost Gini minus scorecard Gini): "
-        f"{_f(ic['test']['gini_points_lost'])} on the in-time test, "
-        f"{_f(ic['oot']['gini_points_lost'])} out of time.\n"
+        f"{_gap('test')} on the in-time test; {_gap('oot')} out of time.\n"
     )
 
     out.append(_findings(rep, res))
@@ -238,10 +260,55 @@ def _rate_story(res: dict) -> str:
     )
 
 
+def _comparison_bullet(res: dict) -> str:
+    """Scorecard vs XGBoost, worded by whether each bootstrap gap interval excludes zero."""
+    m, ic = res["metrics"], res["interpretability_cost"]
+    sig = {s: ic[s].get("significant") for s in ("test", "oot")}
+
+    def part(s: str, label: str) -> str:
+        g = ic[s]
+        lo_hi = g.get("gini_points_lost_interval")
+        gap = f"gap {_f(g['gini_points_lost'])}" + (
+            f", 95% interval {_f(lo_hi[0])} to {_f(lo_hi[1])}" if lo_hi else ""
+        )
+        nums = (
+            f"scorecard Gini {_f(m[s]['scorecard']['gini'])} vs XGBoost "
+            f"{_f(m[s]['xgboost']['gini'])}; {gap}"
+        )
+        if sig[s] is None:
+            return f"{label} ({nums})"
+        if sig[s]:
+            better = "XGBoost" if g["gini_points_lost"] > 0 else "the scorecard"
+            return f"{label} {better} is better by a statistically clear margin ({nums})"
+        return f"{label} the two are statistically indistinguishable ({nums})"
+
+    if sig["test"] is False and sig["oot"] is True:
+        head = "Interpretability costs nothing measurable in time, but does out of time."
+    elif sig["test"] is False and sig["oot"] is False:
+        head = "Interpretability costs nothing measurable, in time or out of time."
+    else:
+        head = "Scorecard vs XGBoost."
+    note = ""
+    boot = res.get("bootstrap", {}).get("oot", {}).get("models", {})
+    if sig["oot"] and boot:
+        sc_iv, xg_iv = boot["scorecard"]["gini"], boot["xgboost"]["gini"]
+        if sc_iv[1] >= xg_iv[0] and xg_iv[1] >= sc_iv[0]:
+            note = (
+                " The two models' individual Gini intervals overlap, yet the paired gap is "
+                "clear: scoring both models on the same resampled loans removes the "
+                "loan-sampling variation they share, so overlapping single-model intervals do "
+                "not mean 'no difference'."
+            )
+    return (
+        f"- **{head}** {part('test', 'On the in-time test')}. "
+        f"{part('oot', 'On the 2015-2016 vintages')}.{note}"
+    )
+
+
 def _findings(rep: Path, res: dict) -> str:
     """Key findings, with every number read from the run outputs."""
     m = res["metrics"]
-    sc_t, xg_t = m["test"]["scorecard"], m["test"]["xgboost"]
+    sc_t = m["test"]["scorecard"]
     sc_o, xg_o = m["oot"]["scorecard"], m["oot"]["xgboost"]
     top = pd.read_csv(rep / "psi_features_oot.csv").iloc[0]
     cut = res["cutoff"]["scorecard"]
@@ -249,10 +316,7 @@ def _findings(rep: Path, res: dict) -> str:
     monotonic = bool(bands["default_rate"].is_monotonic_increasing)
     lines = [
         "### Key findings\n",
-        "- **Interpretability is almost free in time, not out of time.** On the in-time test "
-        f"the scorecard and XGBoost are nearly tied (Gini {_f(sc_t['gini'])} vs "
-        f"{_f(xg_t['gini'])}); on the 2015-2016 vintages XGBoost degrades less (Gini "
-        f"{_f(sc_o['gini'])} vs {_f(xg_o['gini'])}).",
+        _comparison_bullet(res),
         "- **Both models under-predict out of time.** In time, mean PD matches the observed "
         f"default rate ({_pct(sc_t['mean_pd'])} vs {_pct(sc_t['default_rate'])} for the "
         f"scorecard). Out of time the observed rate is {_pct(sc_o['default_rate'])} against a "

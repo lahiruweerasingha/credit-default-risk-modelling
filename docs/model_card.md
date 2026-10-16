@@ -42,6 +42,9 @@ descriptive, not evidence of unfair treatment or its absence.
 
 ## Validation outcome (see README "Results" for the numbers)
 - In-time: discrimination and calibration-in-the-large are good for both models.
+- Champion vs challenger: the Gini gap is tested with a paired, stratified bootstrap; README
+  "Key findings" states, from that test, whether the gap is statistically clear in time and out of
+  time.
 - Out-of-time (2015-2016): ranking holds (band default rates stay monotonic) but **both models
   under-predict PD**. The largest characteristic shift is the absolute note rate, which partly
   encodes the vintage. **Status: would not pass validation for PD-level use without

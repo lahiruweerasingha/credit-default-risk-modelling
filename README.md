@@ -34,18 +34,20 @@ Splits: train 136,745 / validation 45,582 / in-time test 45,582 (vintages 2010-2
 
 | sample | model | ROC-AUC | Gini | KS | avg precision | Brier | observed default rate | mean PD | observed / predicted |
 |---|---|---|---|---|---|---|---|---|---|
-| In-time test | WoE scorecard | 0.885 | 0.770 | 0.625 | 0.150 | 0.00749 | 0.82% | 0.84% | 0.98 |
-| In-time test | XGBoost | 0.886 | 0.772 | 0.634 | 0.165 | 0.00740 | 0.82% | 0.83% | 0.98 |
-| In-time test | Spark MLlib LR | 0.882 | 0.764 | 0.607 | 0.179 | 0.00736 | 0.82% | 0.83% | 0.99 |
-| Out-of-time | WoE scorecard | 0.837 | 0.673 | 0.511 | 0.155 | 0.00807 | 0.89% | 0.55% | 1.62 |
-| Out-of-time | XGBoost | 0.853 | 0.706 | 0.544 | 0.174 | 0.00793 | 0.89% | 0.56% | 1.57 |
-| Out-of-time | Spark MLlib LR | 0.837 | 0.674 | 0.517 | 0.172 | 0.00798 | 0.89% | 0.65% | 1.36 |
+| In-time test | WoE scorecard | 0.885 [0.868, 0.900] | 0.770 [0.736, 0.801] | 0.625 [0.595, 0.663] | 0.150 | 0.00749 | 0.82% | 0.84% | 0.98 |
+| In-time test | XGBoost | 0.886 [0.869, 0.903] | 0.772 [0.738, 0.805] | 0.634 [0.600, 0.670] | 0.165 | 0.00740 | 0.82% | 0.83% | 0.98 |
+| In-time test | Spark MLlib LR | 0.882 [0.866, 0.897] | 0.764 [0.732, 0.795] | 0.607 [0.574, 0.652] | 0.179 | 0.00736 | 0.82% | 0.83% | 0.99 |
+| Out-of-time | WoE scorecard | 0.837 [0.822, 0.851] | 0.673 [0.644, 0.703] | 0.511 [0.485, 0.544] | 0.155 | 0.00807 | 0.89% | 0.55% | 1.62 |
+| Out-of-time | XGBoost | 0.853 [0.839, 0.866] | 0.706 [0.678, 0.732] | 0.544 [0.518, 0.574] | 0.174 | 0.00793 | 0.89% | 0.56% | 1.57 |
+| Out-of-time | Spark MLlib LR | 0.837 [0.822, 0.851] | 0.674 [0.645, 0.703] | 0.517 [0.490, 0.551] | 0.172 | 0.00798 | 0.89% | 0.65% | 1.36 |
 
-**Cost of interpretability** (XGBoost Gini minus scorecard Gini): 0.002 on the in-time test, 0.033 out of time.
+Brackets: 95% intervals from a paired, stratified bootstrap (1,000 resamples; defaults and non-defaults resampled separately, every model scored on the same resampled loans).
+
+**Cost of interpretability** (XGBoost Gini minus scorecard Gini): 0.002 [-0.012, 0.016] - not significant (includes zero) on the in-time test; 0.033 [0.021, 0.044] - significant out of time.
 
 ### Key findings
 
-- **Interpretability is almost free in time, not out of time.** On the in-time test the scorecard and XGBoost are nearly tied (Gini 0.770 vs 0.772); on the 2015-2016 vintages XGBoost degrades less (Gini 0.673 vs 0.706).
+- **Interpretability costs nothing measurable in time, but does out of time.** On the in-time test the two are statistically indistinguishable (scorecard Gini 0.770 vs XGBoost 0.772; gap 0.002, 95% interval -0.012 to 0.016). On the 2015-2016 vintages XGBoost is better by a statistically clear margin (scorecard Gini 0.673 vs XGBoost 0.706; gap 0.033, 95% interval 0.021 to 0.044). The two models' individual Gini intervals overlap, yet the paired gap is clear: scoring both models on the same resampled loans removes the loan-sampling variation they share, so overlapping single-model intervals do not mean 'no difference'.
 - **Both models under-predict out of time.** In time, mean PD matches the observed default rate (0.84% vs 0.82% for the scorecard). Out of time the observed rate is 0.89% against a mean PD of 0.55% (scorecard) and 0.56% (XGBoost). The largest characteristic shift is `orig_interest_rate` (PSI 0.70). Average note rates were lower out of time (2015: 3.97%, 2016: 3.78%) than across development (4.22% on average), and the lowest-rate development vintages (2012: 3.75% rate, 0.70% defaults, 2013: 3.92% rate, 0.65% defaults) were also the two safest, so the absolute rate partly encodes the vintage. The production response would be recalibration on recent vintages and replacing the absolute rate with the rate spread. That change is deliberately **not** made here: modifying the model after seeing out-of-time results would contaminate the out-of-time test.
 - **The cut-off drifts with it.** The scorecard cut-off fixed on validation at 90% approval approves 95.8% of the out-of-time book, while still declining 42.1% of its defaults.
 - **Ranking holds out of time.** Default rates still rise monotonically across bands A-G (table below), so recalibration rather than redevelopment is indicated.
@@ -228,7 +230,7 @@ log-odds for XGBoost). Unknown fields, out-of-range values and invalid codes are
 |---|---|---|
 | Freddie Mac data, behavioural PD at month 12 | Terms allow publishing non-commercial research results; real dates allow a true out-of-time test; default definition close to 90 DPD | [0001](docs/decisions/0001-dataset-and-behavioural-design.md) |
 | Spark SQL for aggregation, single-node XGBoost | ~tens of millions of loan-months need Spark; the one-row-per-loan table fits in memory and exact TreeSHAP needs the native booster | [0002](docs/decisions/0002-spark-for-aggregation-single-node-xgboost.md) |
-| Stratified train/validation/test + out-of-time vintages | Tune on validation only, score test and OOT once; PSI on OOT is the real stability check | [0003](docs/decisions/0003-validation-design.md) |
+| Stratified train/validation/test + out-of-time vintages | Tune on validation only, score test and OOT once; PSI on OOT is the real stability check; paired bootstrap intervals decide whether a model gap is real | [0003](docs/decisions/0003-validation-design.md) |
 | Custom monotonic WoE binning, IV + correlation selection, sign-checked LR | Auditable, testable, no solver dependency; every coefficient has the expected sign | [0004](docs/decisions/0004-woe-scorecard.md) |
 | No postal code / MSA; fairness limited to non-protected segments | Fine geography is a protected-class proxy; the data has no demographics | [0005](docs/decisions/0005-protected-attributes-and-geography.md) |
 | MLflow registry with champion/challenger aliases | Promotion is an alias change; the API loads by alias | [0006](docs/decisions/0006-mlflow-registry-and-serving.md) |
